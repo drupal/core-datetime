@@ -233,8 +233,13 @@ class DateTimePlus {
       elseif ($date instanceof \DateTime) {
         $test_time = $date->format($format);
       }
-      $datetimeplus->setTimestamp($date->getTimestamp());
-      $datetimeplus->setTimezone($date->getTimezone());
+      if ((float)$date->format("U") < -2147483648 || (float)$date->format("U") > 2147483647) {
+          $bigDate = $date->format("U") - time();
+          $datetimeplus = new static($bigDate . " seconds", $date->getTimezone(), $settings);
+      } else {
+          $datetimeplus->setTimestamp($date->getTimestamp());
+          $datetimeplus->setTimezone($date->getTimezone());
+      }
 
       if ($settings['validate_format'] && $test_time != $time) {
         throw new \UnexpectedValueException('The created date does not match the input value.');
